@@ -2,6 +2,11 @@
 module.exports = (db) => {
     const express = require('express');
     const router = express.Router();
+    const { ObjectId } = require('mongodb');
+
+
+
+      const lessonsCollection = db.collection('afterschool-lessons');
 
     // Get all products
     router.get('/', async (req, res) => {
@@ -14,43 +19,94 @@ module.exports = (db) => {
     });
 
     // Get a single lesson by ID
+
+  // Get one lesson by custom lessonId
 router.get('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const lessonsCollection = db.collection('afterschool-lessons');
+  try {
+    const { id } = req.params;
 
-        // Ensure lessonid is a valid ObjectId
-        if (ObjectId.isValid(id)) {
-            return res.status(400).json({ message: 'Invalid lesson ID format' });
-        }
+    const query = {
+      id: isNaN(id) ? id : Number(id)
+    };
+
+    const lesson = await lessonsCollection.findOne(query);
+
+    if (!lesson) {
+      return res.status(404).json({ message: 'Lesson not found' });
+    }
+    else {
+    res.json(lesson);}
+  } catch (error) {
+    console.error('Error fetching lesson:', error);
+    res.status(500).json({ message: 'Error fetching lesson', error: error.message });
+  }
+});
+       
+    router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Convert to ObjectId if it's a valid MongoDB ID
+    const query = {
+      _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+    };
+
+    // Check if the ID is valid
+    if (!query._id) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
+    // Attempt to delete the lesson
+    const result = await lessonsCollection.deleteOne(query);
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Lesson not found' });
+    }
+
+    // Successfully deleted
+    res.json({ message: 'Lesson deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting the lesson:', error);
+    res.status(500).json({ message: 'Error deleting the lesson', error: error.message });
+  }
+});
 
 
-        
-            let query;
 
-            // If it's a valid ObjectId, search by _id
-            if (ObjectId.isValid(id)) {
-                query = { _id: new ObjectId(id) };
-            } else {
-                // Otherwise, assume it's a string or numeric lessonId
-                // Adjust this depending on your schema
-                query = { lessonId: id };  
-            }
 
-            const lesson = await lessonsCollection.findOne(query);
-            
-                if (!lesson) {
-                return res.status(404).json({ message: 'Lesson not found' });
-            }
+    // update a lesson by ID
 
-            res.json(lesson);
-        } catch (error) {
-            res.status(500).json({ message: 'Error fetching lesson', error });
-        }
-    });
+ router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedData = req.body;
 
-           
-    
+    // Convert to ObjectId if it's a valid MongoDB ID
+    const query = {
+      _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+    };
+
+    // Check if the ID is valid
+    if (!query._id) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
+    // Attempt to update the lesson
+    const result = await lessonsCollection.updateOne(query,
+      { $set: updatedData}
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'Lesson not found' });
+    }
+
+    // Successfully deleted
+    res.json({ message: 'Lesson updated successfully', updatedLesson: updatedData  });
+  } catch (error) {
+    console.error('Error updating the lesson:', error);
+    res.status(500).json({ message: 'Error updating the lesson', error: error.message });
+  }
+});
 
     // Add a new product
     router.post('/', async (req, res) => {
@@ -86,8 +142,8 @@ router.get('/:id', async (req, res) => {
     });
 
     return router; // Return the router to be used in the main app
-    };
-
+};
+    
 
     // Add a new product
 
