@@ -13,7 +13,7 @@ app.use(express.json());  // Pase JSON request bodies
 
 
 // Connect to MongoDB using the MongoDB native driver.
-MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+MongoClient.connect(uri)
     .then(client => {
         console.log('Connected to MongoDB Atlas');
         db = client.db('lessons'); // Set the database to interact with (use the default database or specify one)

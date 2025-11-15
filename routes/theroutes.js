@@ -8,6 +8,8 @@ module.exports = (db) => {
 
       const lessonsCollection = db.collection('afterschool-lessons');
 
+      const ordersCollection = db.collection('orders');
+
     // Get all products
     router.get('/', async (req, res) => {
         try {
@@ -140,6 +142,35 @@ router.get('/:id', async (req, res) => {
             res.status(500).json({ message: 'Error adding product', error: error.message });
         }
     });
+
+    // CREATE a new order
+  router.post('/order', async (req, res) => {
+      try {
+          const { name, phone } = req.body;
+
+          // Validate required fields
+          if (!name || !phone) {
+              return res.status(400).json({ error: "name and phone are required" });
+          }
+
+          // Create order doc
+          const order = {
+              name,
+              phone,
+              createdAt: new Date()
+          };
+
+          const result = await db.collection('orders').insertOne(order);
+
+          res.status(201).json({
+              message: "Order created successfully",
+              orderId: result.insertedId
+          });
+
+      } catch (err) {
+          res.status(500).json({ error: err.message });
+      }
+  });
 
     return router; // Return the router to be used in the main app
 };
