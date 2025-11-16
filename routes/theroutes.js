@@ -54,7 +54,7 @@ module.exports = (db) => {
     });
 
     // CREATE a new order
-  router.post('/order', async (req, res) => {
+/*  router.post('/order', async (req, res) => {
       try {
           const { name, phone } = req.body;
           console.log("BODY:", req.body);
@@ -83,6 +83,69 @@ module.exports = (db) => {
           res.status(500).json({ error: err.message });
       }
   });
+
+  */
+// CREATE a new order
+router.post('/order', async (req, res) => {
+    try {
+        const { name, phone, lessonIds } = req.body;
+
+        console.log("Incoming order:", req.body);
+
+        // Validate required fields
+        if (!name || !phone) {
+            return res.status(400).json({ error: "name and phone are required" });
+        }
+
+        // Validate lessons array
+        if (!Array.isArray(lessonIds) || lessonIds.length === 0) {
+            return res.status(400).json({ error: "lessonIds must be a non-empty array" });
+        }
+
+        // Convert lesson IDs -> ObjectIds
+        const lessonsObjectIds = lessonIds
+            .filter(id => ObjectId.isValid(id))
+            .map(id => new ObjectId(id));
+
+        // Ensure all provided ObjectIds are valid
+        if (lessonsObjectIds.length !== lessonIds.length) {
+            return res.status(400).json({ error: "One or more lessonIds are invalid ObjectIds" });
+        }
+
+        // Verify that each lessonId exists in 'afterschool-lessons'
+        const matchedLessons = await lessonsCollection
+            .find({ _id: { $in: lessonsObjectIds } })
+            .toArray();
+
+        if (matchedLessons.length !== lessonsObjectIds.length) {
+            return res.status(400).json({
+                error: "One or more lessonIds do not exist in afterschool-lessons"
+            });
+        }
+
+        // Build order doc
+        const order = {
+            name,
+            phone,
+            lessons: lessonsObjectIds,
+            createdAt: new Date()
+        };
+
+        const result = await ordersCollection.insertOne(order);
+
+        res.status(201).json({
+            message: "Order created successfully",
+            orderId: result.insertedId,
+            order
+        });
+
+    } catch (err) {
+        console.error("Order creation error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
   router.get('/order', async (req, res) => {
         try {
             const myorders = await db.collection('orders').find().toArray(); // Query to fetch all products
@@ -150,7 +213,41 @@ router.delete('/order/:id', async (req, res) => {
     console.error('Error deleting the order:', error);
     res.status(500).json({ message: 'Error deleting the order', error: error.message });
   }
+});// GET order with lesson details using MongoDB lookup
+router.get('/order/:id/details', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!ObjectId.isValid(id)) {
+            return res.status(400).json({ error: "Invalid order ID" });
+        }
+
+        const pipeline = [
+            { $match: { _id: new ObjectId(id) } },
+            {
+                $lookup: {
+                    from: "afterschool-lessons",
+                    localField: "lessons",
+                    foreignField: "_id",
+                    as: "lessonDetails"
+                }
+            }
+        ];
+
+        const result = await ordersCollection.aggregate(pipeline).toArray();
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Order not found" });
+        }
+
+        res.json(result[0]);
+
+    } catch (err) {
+        console.error("Lookup error:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
+
 
    // update a lesson by ID
 
