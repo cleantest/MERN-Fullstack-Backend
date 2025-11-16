@@ -5,11 +5,12 @@ const express = require('express');
 const app = express(); // <-- call express() to create the app instance
 const {MongoClient} = require('mongodb'); // import mongo client
 
+app.use(express.json());  // Pase JSON request bodies
+
 
 // Set the MongoDB Atlas URI from environment variables
 const uri = process.env.DATABASE_URL; 
 let db; // Placeholder for the database connection
-app.use(express.json());  // Pase JSON request bodies
 
 
 // Connect to MongoDB using the MongoDB native driver.
