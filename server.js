@@ -15,7 +15,7 @@ app.use(express.json());  // Pase JSON request bodies
 app.use(express.urlencoded({ extended: true }));
 
 
-app.use('/images', express.static(path.join(__dirname, 'lessonimages')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Set the MongoDB Atlas URI from environment variables
 const uri = process.env.DATABASE_URL; 

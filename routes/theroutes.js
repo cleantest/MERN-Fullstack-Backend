@@ -43,11 +43,11 @@ router.post('/', async (req, res) => {
 
         // IMAGE HANDLING
         if (newLesson.icon) {
-            if (!newLesson.icon.startsWith('/lessonimages/')) {
-                newLesson.icon = '/lessonimages/' + newLesson.icon;
+            if (!newLesson.icon.startsWith('/images/')) {
+                newLesson.icon = '/images/' + newLesson.icon;
             }
         } else {
-            newLesson.icon = '/lessonimages/default.jpg';
+            newLesson.icon = '/images/default.jpg';
         }
 
         const result = await db.collection('afterschool-lessons').insertOne(newLesson);
@@ -67,7 +67,7 @@ router.post('/', async (req, res) => {
     const filename = req.params.filename;
 
     // Path to your images folder
-    const imagePath = path.join(__dirname, '..','lessonimages', filename);
+    const imagePath = path.join(__dirname, '..','images', filename);
 
     // Check if file exists
     fs.access(imagePath, fs.constants.F_OK, (err) => {
