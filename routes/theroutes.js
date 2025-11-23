@@ -1,7 +1,12 @@
 // Example route file: routes/theroutes.js
+const path = require('path');
+const fs = require('fs');
+
+
 module.exports = (db) => {
     const express = require('express');
     const router = express.Router();
+    
     const { ObjectId } = require('mongodb');
 
 
@@ -9,8 +14,7 @@ module.exports = (db) => {
       const lessonsCollection = db.collection('afterschool-lessons');
 
       const ordersCollection = db.collection('orders');
-
-    // Get all products
+   // Get all products
     router.get('/', async (req, res) => {
         try {
             const products = await db.collection('afterschool-lessons').find().toArray(); // Query to fetch all products
@@ -20,38 +24,60 @@ module.exports = (db) => {
         }
     });
 
-    // Add a new lesson
-    router.post('/', async (req, res) => {
-        // Log the request body to see what’s coming in
-        console.log('Request body:', req.body);  
+router.post('/', async (req, res) => {
+    console.log("Request body:", req.body);
 
-        try {
-            // Check if the body is actually present and valid
-            if (!req.body) {
-                return res.status(400).json({ message: 'Request body is missing' });
-            }
-
-            // Ensure we have the required fields and remove _id if it's passed in
-            const { _id, ...newProduct } = req.body;
-
-            // Optional: Validate the data before inserting (e.g., check if all required fields are there)
-            if (!newProduct.title || !newProduct.price) {
-                return res.status(400).json({ message: "Title and price are required!" });
-            }
-
-            // Insert the product into the database
-            const result = await db.collection('afterschool-lessons').insertOne(newProduct);
-
-            // The result will contain the insertedId
-            const insertedProduct = { ...newProduct, _id: result.insertedId };
-
-            // Send back the created product
-            res.status(201).json(insertedProduct);
-        } catch (error) {
-            console.error('Error adding product:', error);  // log full error in console for debugging
-            res.status(500).json({ message: 'Error adding product', error: error.message });
+    try {
+        // Proper body check
+        if (!req.body || Object.keys(req.body).length === 0) {
+            return res.status(400).json({ message: "Request body is missing" });
         }
+
+        const { _id, ...newLesson } = req.body;
+
+        if (!newLesson.subject || !newLesson.price) {
+            return res.status(400).json({ message: "Subject and price are required" });
+        }
+
+        newLesson.price = Number(newLesson.price);
+
+        // IMAGE HANDLING
+        if (newLesson.icon) {
+            if (!newLesson.icon.startsWith('/lessonimages/')) {
+                newLesson.icon = '/lessonimages/' + newLesson.icon;
+            }
+        } else {
+            newLesson.icon = '/lessonimages/default.jpg';
+        }
+
+        const result = await db.collection('afterschool-lessons').insertOne(newLesson);
+
+        res.status(201).json({
+            message: "Lesson added successfully",
+            lesson: { ...newLesson, _id: result.insertedId }
+        });
+
+    } catch (err) {
+        console.error("Error adding lesson:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+    router.get('/image/:filename', (req, res) => {
+    const filename = req.params.filename;
+
+    // Path to your images folder
+    const imagePath = path.join(__dirname, '..','lessonimages', filename);
+
+    // Check if file exists
+    fs.access(imagePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            return res.status(404).json({ error: "Image not found" });
+        }
+
+        res.sendFile(imagePath);
     });
+});
 
     // CREATE a new order
 /*  router.post('/order', async (req, res) => {
