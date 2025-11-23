@@ -2,12 +2,13 @@
 require('dotenv').config();
 
 const express = require('express');
-const cors = require('cors');
-app.use(cors());
+
 
 const app = express(); // <-- call express() to create the app instance
 const {MongoClient} = require('mongodb'); // import mongo client
 const path = require('path');
+const cors = require('cors');
+app.use(cors());
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use(express.json());  // Pase JSON request bodies
