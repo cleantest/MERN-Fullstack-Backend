@@ -114,61 +114,62 @@ router.post('/', async (req, res) => {
 // CREATE a new order
 router.post('/order', async (req, res) => {
     try {
-        const { name, phone, lessonIds } = req.body;
+        const { parentName, phone, items, total } = req.body;
 
         console.log("Incoming order:", req.body);
 
-        // Validate required fields
-        if (!name || !phone) {
-            return res.status(400).json({ error: "name and phone are required" });
+        if (!parentName || !phone || !items || items.length === 0) {
+            return res.status(400).json({ error: "Missing order fields" });
         }
 
-        // Validate lessons array
-        if (!Array.isArray(lessonIds) || lessonIds.length === 0) {
-            return res.status(400).json({ error: "lessonIds must be a non-empty array" });
-        }
+        // Convert numeric lesson ids to query format
+        const lessonIds = items.map(i => i.id);
 
-        // Convert lesson IDs -> ObjectIds
-        const lessonsObjectIds = lessonIds
-            .filter(id => ObjectId.isValid(id))
-            .map(id => new ObjectId(id));
-
-        // Ensure all provided ObjectIds are valid
-        if (lessonsObjectIds.length !== lessonIds.length) {
-            return res.status(400).json({ error: "One or more lessonIds are invalid ObjectIds" });
-        }
-
-        // Verify that each lessonId exists in 'afterschool-lessons'
-        const matchedLessons = await lessonsCollection
-            .find({ _id: { $in: lessonsObjectIds } })
+        // Get lessons that match the IDs
+        const lessons = await lessonsCollection
+            .find({ id: { $in: lessonIds } })
             .toArray();
 
-        if (matchedLessons.length !== lessonsObjectIds.length) {
-            return res.status(400).json({
-                error: "One or more lessonIds do not exist in afterschool-lessons"
-            });
+        if (lessons.length !== lessonIds.length) {
+            return res.status(400).json({ error: "One or more lessons not found" });
         }
 
-        // Build order doc
         const order = {
-            name,
+            parentName,
             phone,
-            lessons: lessonsObjectIds,
+            items,       // full objects
+            lessonIds,   // numeric IDs
+            total,
             createdAt: new Date()
         };
 
         const result = await ordersCollection.insertOne(order);
 
         res.status(201).json({
-            message: "Order created successfully",
+            success: true,
             orderId: result.insertedId,
             order
         });
-
     } catch (err) {
         console.error("Order creation error:", err);
         res.status(500).json({ error: err.message });
     }
+});
+
+router.put('/:id/spaces', async (req, res) => {
+    const lessonId = parseInt(req.params.id);
+    const { spaces } = req.body;
+
+    if (isNaN(lessonId)) {
+        return res.status(400).json({ error: "Invalid lesson ID" });
+    }
+
+    const result = await lessonsCollection.updateOne(
+        { id: lessonId },
+        { $set: { spaces: spaces } }
+    );
+
+    res.json({ success: result.modifiedCount > 0 });
 });
 
 
