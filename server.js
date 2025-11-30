@@ -2,6 +2,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const morgan = require('morgan');              // <-- ADD MORGAN
 
 
 const app = express(); // <-- call express() to create the app instance
@@ -9,6 +10,8 @@ const {MongoClient} = require('mongodb'); // import mongo client
 const path = require('path');
 const cors = require('cors');
 app.use(cors());
+app.use(morgan('dev'));                        // <-- USE MORGAN HERE
+
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use(express.json());  // Pase JSON request bodies
