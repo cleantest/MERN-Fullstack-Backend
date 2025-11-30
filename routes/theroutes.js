@@ -10,12 +10,12 @@ module.exports = (db) => {
     const { ObjectId } = require('mongodb');
 
 
-
+ //MongoDB collections
       const lessonsCollection = db.collection('afterschool-lessons');
-
       const ordersCollection = db.collection('orders');
-   // Get all products
-    router.get('/', async (req, res) => {
+
+   // Get all lessons
+ router.get('/', async (req, res) => {
         try {
             const products = await db.collection('afterschool-lessons').find().toArray(); // Query to fetch all products
             res.json(products);
@@ -24,6 +24,7 @@ module.exports = (db) => {
         }
     });
 
+    //Add a new lessom
 router.post('/', async (req, res) => {
     console.log("Request body:", req.body);
 
@@ -34,14 +35,15 @@ router.post('/', async (req, res) => {
         }
 
         const { _id, ...newLesson } = req.body;
-
+ 
+        // Validate required fields
         if (!newLesson.subject || !newLesson.price) {
             return res.status(400).json({ message: "Subject and price are required" });
         }
 
         newLesson.price = Number(newLesson.price);
 
-        // IMAGE HANDLING
+        // Hansles lesson image
         if (newLesson.icon) {
             if (!newLesson.icon.startsWith('/images/')) {
                 newLesson.icon = '/images/' + newLesson.icon;
@@ -62,11 +64,11 @@ router.post('/', async (req, res) => {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 });
-
+//Serving images statically
     router.get('/image/:filename', (req, res) => {
     const filename = req.params.filename;
 
-    // Path to your images folder
+    // Path to the images folder
     const imagePath = path.join(__dirname, '..','images', filename);
 
     // Check if file exists
@@ -79,39 +81,8 @@ router.post('/', async (req, res) => {
     });
 });
 
-    // CREATE a new order
-/*  router.post('/order', async (req, res) => {
-      try {
-          const { name, phone } = req.body;
-          console.log("BODY:", req.body);
-          console.log("Headers:", req.headers);
-            console.log("Body type:", typeof req.body);
-            console.log("Body:", req.body);
-
-
-          // Validate required fields
-          if (!name || !phone) {
-              return res.status(400).json({ error: "name and phone are required" });
-          }
-
-          // Create order doc
-          const order = {
-              name,
-              phone,
-              createdAt: new Date()
-          };
-
-          const result = await db.collection('orders').insertOne(order);
-
-          res.status(201).json(result);
-
-      } catch (err) {
-          res.status(500).json({ error: err.message });
-      }
-  });
-
-  */
-// CREATE a new order
+  
+// Create a lessons order
 router.post('/order', async (req, res) => {
     try {
         const { parentName, phone, items, total } = req.body;
@@ -137,8 +108,8 @@ router.post('/order', async (req, res) => {
         const order = {
             parentName,
             phone,
-            items,       // full objects
-            lessonIds,   // numeric IDs
+            items,      
+            lessonIds,  
             total,
             createdAt: new Date()
         };
@@ -156,6 +127,7 @@ router.post('/order', async (req, res) => {
     }
 });
 
+//Update available spaces for a lesson
 router.put('/:id/spaces', async (req, res) => {
     const lessonId = parseInt(req.params.id);
     const { spaces } = req.body;
@@ -172,7 +144,7 @@ router.put('/:id/spaces', async (req, res) => {
     res.json({ success: result.modifiedCount > 0 });
 });
 
-
+//Get all orders
   router.get('/order', async (req, res) => {
         try {
             const myorders = await db.collection('orders').find().toArray(); // Query to fetch all products
@@ -183,14 +155,7 @@ router.put('/:id/spaces', async (req, res) => {
     });
 
    
-
- 
-
-    
-
-    
-    
-  // Get one order by custom userId
+ // Get one order by custom userId
 router.get('/order/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -213,6 +178,7 @@ router.get('/order/:id', async (req, res) => {
   }
 });
 
+//Delete an order by ID
 router.delete('/order/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -248,10 +214,10 @@ router.get('/order/:id/details', async (req, res) => {
         if (!ObjectId.isValid(id)) {
             return res.status(400).json({ error: "Invalid order ID" });
         }
-
+// Define the aggregation pipeline
         const pipeline = [
             { $match: { _id: new ObjectId(id) } },
-            {
+            {   // Lookup to join with afterschool-lessons collection
                 $lookup: {
                     from: "afterschool-lessons",
                     localField: "lessons",
@@ -260,7 +226,7 @@ router.get('/order/:id/details', async (req, res) => {
                 }
             }
         ];
-
+// Execute the aggregation
         const result = await ordersCollection.aggregate(pipeline).toArray();
 
         if (result.length === 0) {
@@ -276,8 +242,7 @@ router.get('/order/:id/details', async (req, res) => {
 });
 
 
-   // update a lesson by ID
-
+   // Update a lesson by ID
  router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -309,8 +274,6 @@ router.get('/order/:id/details', async (req, res) => {
     res.status(500).json({ message: 'Error updating the lesson', error: error.message });
   }
 });
-
- // Get a single lesson by ID
 
   // Get one lesson by custom lessonId
 router.get('/:id', async (req, res) => {
@@ -363,51 +326,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-
-
     return router; // Return the router to be used in the main app
 };
     
-
-
-    // Add a new product
-
-    /*
-    router.post('/', async (req, res) => {
-                console.log('Request body:', req.body); // <-- log the body
-
-        try {
-            
-            const newProduct = req.body;
-            const result = await db.collection('products').insertOne(newProduct); // Insert a new product
-            res.status(201).json(result.ops[0]); // Send back the created product
-        } catch (error) {
-            res.status(500).json({ message: 'Error adding product', error: error.message });
-        }
-    });
-       /*
-
-
-     Add a new product
-    router.post('/', async (req, res) => {
-        console.log('Request body:', req.body); // <-- log the body to inspect it
-
-        try {
-            // Ensure we have the required fields (like title, price, etc.) and remove _id if it's passed in
-            const { _id, ...newProduct } = req.body;
-
-            // Optional: Validate the data before inserting (e.g., check if all required fields are there)
-            if (!newProduct.title || !newProduct.price) {
-                return res.status(400).json({ message: "Title and price are required!" });
-            }
-
-            // Insert the product into the database
-            const result = await db.collection('products').insertOne(newProduct);
-
-            // Send back the created product
-            res.status(201).json(result.ops[0]);
-        } catch (error) {
-            console.error('Error adding product:', error);  // log full error in console for debugging
-            res.status(500).json({ message: 'Error adding product', error: error.message });
-        }
-*/
