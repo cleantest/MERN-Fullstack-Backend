@@ -1,0 +1,143 @@
+[{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43d0"
+  },
+  "id": 4,
+  "subject": "Financial Engineering",
+  "location": "CG Lec",
+  "price": 18,
+  "spaces": 6,
+  "icon": "images/finance.jpg"
+},
+{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43d4"
+  },
+  "id": 8,
+  "subject": "Computer Networks",
+  "location": "BG ONE",
+  "price": 16,
+  "spaces": 5,
+  "icon": "images/cyberr.jpg"
+},
+{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43cf"
+  },
+  "id": 3,
+  "subject": "Storytelling",
+  "location": "Trent Park",
+  "price": 25,
+  "spaces": 5,
+  "icon": "images/storytelling.jpg"
+},
+{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43d7"
+  },
+  "id": 11,
+  "subject": "Philosophical studies",
+  "location": "Horney Library",
+  "price": 19,
+  "spaces": 6,
+  "icon": "images/Philosophyy.jpg"
+},
+{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43d3"
+  },
+  "id": 7,
+  "subject": "Smart Farming",
+  "location": "Computer Lab",
+  "price": 22,
+  "spaces": 5,
+  "icon": "images/agriculture.jpg"
+},
+{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43d5"
+  },
+  "id": 9,
+  "subject": "Governance 101",
+  "location": "Lab Room 3C",
+  "price": 14,
+  "spaces": 6,
+  "icon": "images/laww.jpg"
+},
+{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43cd"
+  },
+  "id": 1,
+  "subject": "Accounting",
+  "location": "CatHill Lab",
+  "price": 15,
+  "spaces": 8,
+  "icon": "images/account.jpg"
+},
+{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43d1"
+  },
+  "id": 5,
+  "subject": "Pastries Recipes",
+  "location": "My Cafe",
+  "price": 10,
+  "icon": "images/cakes.jpg",
+  "spaces": 5
+},
+{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43d6"
+  },
+  "id": 10,
+  "subject": "Marketing Fundamentals",
+  "location": "Meta - verse",
+  "price": 17,
+  "spaces": 5,
+  "icon": "images/market.jpg"
+},
+{
+  "_id": {
+    "$oid": "691329a9873f25c251fd43d8"
+  },
+  "id": 12,
+  "subject": "First Aid",
+  "location": "Medical Lab",
+  "price": 24,
+  "spaces": 5,
+  "icon": "images/med.jpg"
+},
+{
+  "_id": {
+    "$oid": "69296e223f4c874058d34615"
+  },
+  "id": 2,
+  "subject": "Business Relations",
+  "location": "CatHill Lecture",
+  "price": 24,
+  "spaces": 8,
+  "icon": "images/businesss.jpg"
+},
+{
+  "_id": {
+    "$oid": "692a89ab586af822442b68d3"
+  },
+  "id": 6,
+  "subject": "Story composition",
+  "location": "Foxtrot Campgrounds",
+  "price": 24,
+  "spaces": 6,
+  "icon": "images/storytelling.jpg"
+},
+{
+  "_id": {
+    "$oid": "692c254645c34943cd0da077"
+  },
+  "id": 13,
+  "subject": "Financial Engineering",
+  "location": "CG Lec",
+  "price": 18,
+  "spaces": 6,
+  "icon": "/images/images/cyber.jpg"
+}]
