@@ -12,6 +12,10 @@ const cors = require('cors');
 app.use(cors());
 app.use(morgan('dev'));                        // <-- USE MORGAN HERE
 
+app.get('/', (req, res) => {
+    res.send('API is running. Use /lessons to fetch lessons.');
+});
+
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use(express.json());  // Pase JSON request bodies

@@ -24,18 +24,19 @@ module.exports = (db) => {
         }
     });
 
-    //Add a new lessom
+    //Add a lesson
+
 router.post('/', async (req, res) => {
     console.log("Request body:", req.body);
 
     try {
-        // Proper body check
+        // valid body check
         if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({ message: "Request body is missing" });
         }
 
         const { _id, ...newLesson } = req.body;
- 
+
         // Validate required fields
         if (!newLesson.subject || !newLesson.price) {
             return res.status(400).json({ message: "Subject and price are required" });
@@ -43,15 +44,27 @@ router.post('/', async (req, res) => {
 
         newLesson.price = Number(newLesson.price);
 
-        // Hansles lesson image
-        if (newLesson.icon) {
-            if (!newLesson.icon.startsWith('/images/')) {
-                newLesson.icon = '/images/' + newLesson.icon;
-            }
-        } else {
-            newLesson.icon = '/images/default.jpg';
+        // Validate & normalize the icon field
+        if (!newLesson.icon) {
+            return res.status(400).json({ message: "Image (icon) is required" });
         }
 
+        // Remove leading /images/ if present, normalize
+        let filename = newLesson.icon.replace('images/', '');
+        const imagePath = path.join(__dirname, '..', 'images', filename);
+
+        // ❗ Check if image file exists in /images folder
+        if (!fs.existsSync(imagePath)) {
+            return res.status(400).json({
+                message: "Image file does not exist on server",
+                missingFile: filename
+            });
+        }
+
+        // Put /images/ back before saving to DB
+        newLesson.icon = 'images/' + filename;
+
+        // Now insert lesson because image is valid
         const result = await db.collection('afterschool-lessons').insertOne(newLesson);
 
         res.status(201).json({
@@ -64,6 +77,7 @@ router.post('/', async (req, res) => {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 });
+
 //Serving images statically
     router.get('/image/:filename', (req, res) => {
     const filename = req.params.filename;
