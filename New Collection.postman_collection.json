@@ -6,28 +6,27 @@
 		"_exporter_id": "47974370"
 	},
 	"item": [
-		{
-			"name": "New Request",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://mern-fullstack-backend-xct9.onrender.com/lessons/2",
-					"protocol": "https",
-					"host": [
-						"mern-fullstack-backend-xct9",
-						"onrender",
-						"com"
-					],
-					"path": [
-						"lessons",
-						"2"
-					]
-				}
-			},
-			"response": []
-		},
-		{
+
+		
+		
+							
+{  "POST": "https://mern-fullstack-backend-xct9.onrender.com/lessons/order",
+  "parentName": "Therat Butcher",
+  "phone": "45657644",
+  "lessonIds": [
+    4
+  ],
+  "total": 18
+},
+		{   "GET": "https://mern-fullstack-backend-xct9.onrender.com/lessons/",
+            "POST": "https://mern-fullstack-backend-xct9.onrender.com/lessons/order",
+            "PUT": "https://mern-fullstack-backend-xct9.onrender.com/lessons/",
+			"content":{   
+				"subject": "iouughfmatics",
+
+				"spaces": 56
+    },
+
 			"name": "https://mern-fullstack-backend-xct9.onrender.com/lessons/2",
 			"request": {
 				"method": "GET",
@@ -69,8 +68,8 @@
 			},
 			"response": []
 		},
-		{
-			"name": "https://mern-fullstack-backend-xct9.onrender.com/lessons/7/spaces",
+{
+			"name": "https://mern-fullstack-backend-xct9.onrender.com/lessons/7",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -90,7 +89,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://mern-fullstack-backend-xct9.onrender.com/lessons/7/spaces",
+					"raw": "https://mern-fullstack-backend-xct9.onrender.com/lessons/7",
 					"protocol": "https",
 					"host": [
 						"mern-fullstack-backend-xct9",
@@ -101,78 +100,6 @@
 						"lessons",
 						"7",
 						"spaces"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Post new lesson",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \r\n  \"parentName\": \"Thereti\",\r\n  \"phone\": \"45657644\",\r\n  \"items\": [\r\n    {\r\n      \"id\": 4,\r\n      \"subject\": \"Financial Engineering\",\r\n      \"location\": \"CG Lec\",\r\n      \"price\": 18,\r\n      \"icon\": \"images/finance.jpg\"\r\n    }\r\n  ],\r\n  \"lessonIds\": [\r\n    4\r\n  ],\r\n  \"total\": 18\r\n  \r\n  }\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://mern-fullstack-backend-xct9.onrender.com/lessons/order",
-					"protocol": "https",
-					"host": [
-						"mern-fullstack-backend-xct9",
-						"onrender",
-						"com"
-					],
-					"path": [
-						"lessons",
-						"order"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "https://mern-fullstack-backend-xct9.onrender.com/lessons/order",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \r\n  \"parentName\": \"Thereti\",\r\n  \"phone\": \"45657644\",\r\n  \"items\": [\r\n    {\r\n      \"id\": 4,\r\n      \"subject\": \"Financial Engineering\",\r\n      \"location\": \"CG Lec\",\r\n      \"price\": 18,\r\n      \"icon\": \"images/finance.jpg\"\r\n    }\r\n  ],\r\n  \"lessonIds\": [\r\n    4\r\n  ],\r\n  \"total\": 18\r\n  \r\n  }\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://mern-fullstack-backend-xct9.onrender.com/lessons/order",
-					"protocol": "https",
-					"host": [
-						"mern-fullstack-backend-xct9",
-						"onrender",
-						"com"
-					],
-					"path": [
-						"lessons",
-						"order"
 					]
 				}
 			},
@@ -239,7 +166,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/lessons/7/spaces",
+					"raw": "http://localhost:3000/lessons/7",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -256,3 +183,5 @@
 		}
 	]
 }
+
+

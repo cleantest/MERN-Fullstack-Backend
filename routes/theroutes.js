@@ -53,7 +53,7 @@ router.post('/', async (req, res) => {
         let filename = newLesson.icon.replace('images/', '');
         const imagePath = path.join(__dirname, '..', 'images', filename);
 
-        // ❗ Check if image file exists in /images folder
+        //  Check if image file exists in /images folder
         if (!fs.existsSync(imagePath)) {
             return res.status(400).json({
                 message: "Image file does not exist on server",
@@ -78,24 +78,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-//Serving images statically
-    router.get('/image/:filename', (req, res) => {
-    const filename = req.params.filename;
-
-    // Path to the images folder
-    const imagePath = path.join(__dirname, '..','images', filename);
-
-    // Check if file exists
-    fs.access(imagePath, fs.constants.F_OK, (err) => {
-        if (err) {
-            return res.status(404).json({ error: "Image not found" });
-        }
-
-        res.sendFile(imagePath);
-    });
-});
-
-  
 // Create a lessons order
 router.post('/order', async (req, res) => {
     try {
@@ -141,21 +123,41 @@ router.post('/order', async (req, res) => {
     }
 });
 
-//Update available spaces for a lesson
-router.put('/:id/spaces', async (req, res) => {
-    const lessonId = parseInt(req.params.id);
-    const { spaces } = req.body;
 
+// Update ANY fields for a lesson
+router.put('/:id', async (req, res) => {
+    const lessonId = parseInt(req.params.id);
+    const updateData = req.body;
+
+    // Validate lesson ID 
     if (isNaN(lessonId)) {
         return res.status(400).json({ error: "Invalid lesson ID" });
     }
 
-    const result = await lessonsCollection.updateOne(
-        { id: lessonId },
-        { $set: { spaces: spaces } }
-    );
+    // Validate request body has at least 1 field to update
+    if (!updateData || Object.keys(updateData).length === 0) {
+        return res.status(400).json({ error: "No data provided for update" });
+    }
 
-    res.json({ success: result.modifiedCount > 0 });
+    try {
+        const result = await lessonsCollection.updateOne(
+            { id: lessonId },
+            { $set: updateData }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ error: "Lesson not found" });
+        }
+
+        res.json({
+            success: true,
+            message: "Lesson updated successfully",
+            updatedFields: updateData
+        });
+    } catch (err) {
+        console.error("Error updating lesson:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 //Get all orders
@@ -190,69 +192,6 @@ router.get('/order/:id', async (req, res) => {
     console.error('Error fetching lesson:', error);
     res.status(500).json({ message: 'Error fetching lesson', error: error.message });
   }
-});
-
-//Delete an order by ID
-router.delete('/order/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Convert to ObjectId if it's a valid MongoDB ID
-    const query = {
-      _id: ObjectId.isValid(id) ? new ObjectId(id) : null
-    };
-
-    // Check if the ID is valid
-    if (!query._id) {
-      return res.status(400).json({ message: 'Invalid ID format' });
-    }
-
-    // Attempt to delete the lesson
-    const result = await ordersCollection.deleteOne(query);
-
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    // Successfully deleted
-    res.json({ message: 'Order deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting the order:', error);
-    res.status(500).json({ message: 'Error deleting the order', error: error.message });
-  }
-});// GET order with lesson details using MongoDB lookup
-router.get('/order/:id/details', async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        if (!ObjectId.isValid(id)) {
-            return res.status(400).json({ error: "Invalid order ID" });
-        }
-// Define the aggregation pipeline
-        const pipeline = [
-            { $match: { _id: new ObjectId(id) } },
-            {   // Lookup to join with afterschool-lessons collection
-                $lookup: {
-                    from: "afterschool-lessons",
-                    localField: "lessons",
-                    foreignField: "_id",
-                    as: "lessonDetails"
-                }
-            }
-        ];
-// Execute the aggregation
-        const result = await ordersCollection.aggregate(pipeline).toArray();
-
-        if (result.length === 0) {
-            return res.status(404).json({ error: "Order not found" });
-        }
-
-        res.json(result[0]);
-
-    } catch (err) {
-        console.error("Lookup error:", err);
-        res.status(500).json({ error: err.message });
-    }
 });
 
 
@@ -311,35 +250,7 @@ router.get('/:id', async (req, res) => {
   }
 });
        
-    router.delete('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Convert to ObjectId if it's a valid MongoDB ID
-    const query = {
-      _id: ObjectId.isValid(id) ? new ObjectId(id) : null
-    };
-
-    // Check if the ID is valid
-    if (!query._id) {
-      return res.status(400).json({ message: 'Invalid ID format' });
-    }
-
-    // Attempt to delete the lesson
-    const result = await lessonsCollection.deleteOne(query);
-
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ message: 'Lesson not found' });
-    }
-
-    // Successfully deleted
-    res.json({ message: 'Lesson deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting the lesson:', error);
-    res.status(500).json({ message: 'Error deleting the lesson', error: error.message });
-  }
-});
-
+    
     return router; // Return the router to be used in the main app
 };
     
