@@ -195,39 +195,7 @@ router.get('/order/:id', async (req, res) => {
 });
 
 
-   // Update a lesson by ID
- router.put('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedData = req.body;
-
-    // Convert to ObjectId if it's a valid MongoDB ID
-    const query = {
-      _id: ObjectId.isValid(id) ? new ObjectId(id) : null
-    };
-
-    // Check if the ID is valid
-    if (!query._id) {
-      return res.status(400).json({ message: 'Invalid ID format' });
-    }
-
-    // Attempt to update the lesson
-    const result = await lessonsCollection.updateOne(query,
-      { $set: updatedData}
-    );
-
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ message: 'Lesson not found' });
-    }
-
-    // Successfully deleted
-    res.json({ message: 'Lesson updated successfully', updatedLesson: updatedData  });
-  } catch (error) {
-    console.error('Error updating the lesson:', error);
-    res.status(500).json({ message: 'Error updating the lesson', error: error.message });
-  }
-});
-
+  
   // Get one lesson by custom lessonId
 router.get('/:id', async (req, res) => {
   try {
